@@ -4,8 +4,9 @@ ProTasker es una aplicación web de demostración para organizar actividades aca
 
 ## Integrantes
 
-- Nombre completo — Código
-- Nombre completo — Código
+- Alejandro Ramírez Díaz — 12027
+- Julián Sebastián Lozada Lozano — 1202799
+- Miguél Andrés Lguizamón Monroy - 12027
 
 ## 1. Objetivo General
 
