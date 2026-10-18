@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Organiza tus tareas académicas, consulta tu calendario y recibe recordatorios con ProTasker.">
+  <meta name="theme-color" content="#0b0918">
+  <title>ProTasker — Tu organizador académico</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="ProTasker, ir al inicio" data-home-link>
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="m5 12.5 4.5 4.5L19 7.5"></path>
+        </svg>
+      </span>
+      <span>Pro<span class="brand-accent">Tasker</span></span>
+    </a>
+    <button class="button button-quiet" type="button" data-open-auth>Iniciar sesión</button>
+  </header>
+
+  <main>
+    <section class="landing" id="inicio" aria-labelledby="hero-title">
+      <div class="hero">
+        <div class="hero-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="m5 12.5 4.5 4.5L19 7.5"></path>
+          </svg>
+        </div>
+        <h1 id="hero-title" tabindex="-1">Pro<span>Tasker</span></h1>
+        <p class="hero-lead">El organizador académico que necesitas.</p>
+        <p class="hero-copy">Gestiona tareas, visualiza tu calendario y recibe recordatorios inteligentes.</p>
+      </div>
+
+      <section class="feature-section" aria-labelledby="features-title">
+        <h2 class="visually-hidden" id="features-title">Funciones de ProTasker</h2>
+        <div class="feature-grid">
+        <button class="feature-card feature-purple" type="button" data-feature="tasks" aria-expanded="false" aria-controls="feature-detail">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M9 5H5v14h14v-4M9 3h6v4H9z"></path>
+              <path d="m10 13 2 2 8-8"></path>
+            </svg>
+          </span>
+          <span class="feature-title">Gestión de Tareas</span>
+          <span class="feature-description">Crea y organiza actividades académicas</span>
+          <span class="feature-toggle" data-toggle-label>▼ ver más</span>
+        </button>
+        <button class="feature-card feature-blue" type="button" data-feature="calendar" aria-expanded="false" aria-controls="feature-detail">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <rect x="3.5" y="5" width="17" height="15" rx="2"></rect>
+              <path d="M7.5 3v4M16.5 3v4M4 9h16"></path>
+            </svg>
+          </span>
+          <span class="feature-title">Calendario Visual</span>
+          <span class="feature-description">Visualiza todo tu mes de un vistazo</span>
+          <span class="feature-toggle" data-toggle-label>▼ ver más</span>
+        </button>
+        <button class="feature-card feature-teal" type="button" data-feature="notifications" aria-expanded="false" aria-controls="feature-detail">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path>
+              <path d="M4 5 2.5 3.5M20 5l1.5-1.5"></path>
+            </svg>
+          </span>
+          <span class="feature-title">Notificaciones</span>
+          <span class="feature-description">Alertas del navegador en tiempo real</span>
+          <span class="feature-toggle" data-toggle-label>▼ ver más</span>
+        </button>
+        <button class="feature-card feature-violet" type="button" data-feature="reminders" aria-expanded="false" aria-controls="feature-detail">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+          </span>
+          <span class="feature-title">Recordatorios</span>
+          <span class="feature-description">Aviso anticipado configurable</span>
+          <span class="feature-toggle" data-toggle-label>▼ ver más</span>
+        </button>
+        </div>
+      </section>
+
+      <p class="feature-hint">Selecciona una función con clic, Enter o barra espaciadora para ver cómo trabaja.</p>
+      <section class="feature-detail" id="feature-detail" aria-live="polite" aria-atomic="true" hidden>
+        <div class="detail-heading">
+          <span class="detail-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="m5 12.5 4.5 4.5L19 7.5"></path>
+            </svg>
+          </span>
+          <h2 data-detail-title></h2>
+        </div>
+        <p data-detail-copy></p>
+      </section>
+
+      <div class="hero-action">
+        <button class="button button-primary" type="button" data-open-auth data-register-entry>
+          Comenzar gratis
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M5 12h14m-6-6 6 6-6 6"></path>
+          </svg>
+        </button>
+        <p>Gratuito · Sin tarjeta de crédito · Diseñado para estudiantes</p>
+      </div>
+    </section>
+
+    <section class="auth-view" aria-labelledby="auth-title" hidden>
+      <div class="auth-card">
+        <a class="brand auth-brand" href="#inicio" aria-label="ProTasker, volver al inicio" data-home-link>
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="m5 12.5 4.5 4.5L19 7.5"></path>
+            </svg>
+          </span>
+          <span>Pro<span class="brand-accent">Tasker</span></span>
+        </a>
+        <h1 id="auth-title" tabindex="-1" data-auth-title>Iniciar sesión</h1>
+        <p class="auth-intro" data-auth-intro>Ingresa tus datos para continuar</p>
+        <form class="auth-form" data-auth-form>
+          <label class="visually-hidden" for="full-name" data-name-label hidden>Nombre completo</label>
+          <input class="auth-input" id="full-name" name="name" type="text" autocomplete="name" placeholder="Nombre completo" data-name-field hidden>
+          <label class="visually-hidden" for="email">Correo electrónico</label>
+          <input class="auth-input" id="email" name="email" type="email" autocomplete="email" placeholder="tu@correo.com" required>
+          <label class="visually-hidden" for="password">Contraseña</label>
+          <input class="auth-input" id="password" name="password" type="password" autocomplete="current-password" placeholder="Contraseña" required>
+          <button class="button button-primary auth-submit" type="submit" data-submit-label>
+            Iniciar sesión
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M5 12h14m-6-6 6 6-6 6"></path>
+            </svg>
+          </button>
+          <p class="form-message" role="status" data-form-message hidden></p>
+        </form>
+        <div class="auth-divider"><span>o continúa con</span></div>
+        <button class="button button-secondary google-button" type="button" disabled aria-describedby="google-note">
+          <span class="google-mark" aria-hidden="true">G</span>
+          Google
+        </button>
+        <p class="visually-hidden" id="google-note">El acceso con Google estará disponible cuando se configure el proveedor de autenticación.</p>
+        <div class="auth-switch">
+          <p data-switch-copy>¿No tienes cuenta?</p>
+          <button class="button button-quiet switch-button" type="button" data-switch-auth>Regístrate gratis</button>
+        </div>
+        <button class="back-link" type="button" data-back-home>Volver al inicio</button>
+      </div>
+    </section>
+
+    <section class="verification-view" aria-labelledby="verification-title" hidden>
+      <div class="auth-card verification-card">
+        <div class="verification-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <path d="m4 7 8 6 8-6"></path>
+          </svg>
+        </div>
+        <h1 id="verification-title" tabindex="-1">Verifica tu correo</h1>
+        <p class="auth-intro">Enviamos un código de verificación a</p>
+        <p class="verification-email" data-verification-email></p>
+        <div class="demo-notice">
+          <span class="demo-notice-icon" aria-hidden="true">i</span>
+          <div>
+            <p class="demo-notice-title">Modo demostración</p>
+            <p>En producción recibirías un correo real. Tu código de prueba es: <code data-demo-code>265378</code></p>
+          </div>
+        </div>
+        <form class="verification-form" data-verification-form>
+          <label class="visually-hidden" for="verification-code">Código de verificación de seis dígitos</label>
+          <input class="auth-input verification-input" id="verification-code" name="verification-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" aria-describedby="verification-feedback" required>
+          <button class="button button-primary auth-submit" type="submit" data-verify-button disabled>
+            Verificar y acceder
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="m5 12 4 4L19 6"></path>
+            </svg>
+          </button>
+          <p class="form-message verification-feedback" id="verification-feedback" role="status" aria-live="polite" data-verification-feedback hidden></p>
+        </form>
+        <div class="verification-actions">
+          <button class="back-link" type="button" data-back-to-register>← Volver al registro</button>
+          <button class="back-link resend-link" type="button" data-resend-code>Reenviar código</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-view" aria-labelledby="dashboard-title" hidden>
+      <aside class="dashboard-sidebar" data-dashboard-sidebar>
+        <a class="brand dashboard-brand" href="#dashboard" aria-label="ProTasker, ir al inicio del panel" data-dashboard-home>
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="m5 12.5 4.5 4.5L19 7.5"></path>
+            </svg>
+          </span>
+          <span>Pro<span class="brand-accent">Tasker</span></span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Navegación principal">
+          <button class="dashboard-nav-item is-current" type="button" aria-current="page" data-dashboard-nav="Inicio">
+            <span aria-hidden="true">⌂</span>Inicio
+          </button>
+          <button class="dashboard-nav-item" type="button" data-dashboard-nav="Tareas">
+            <span aria-hidden="true">☑</span>Tareas
+          </button>
+          <button class="dashboard-nav-item" type="button" data-dashboard-nav="Calendario">
+            <span aria-hidden="true">▦</span>Calendario
+          </button>
+          <button class="dashboard-nav-item" type="button" data-dashboard-nav="Progreso">
+            <span aria-hidden="true">▤</span>Progreso
+          </button>
+          <button class="dashboard-nav-item" type="button" data-dashboard-nav="Enfoque">
+            <span aria-hidden="true">◉</span>Modo enfoque
+          </button>
+          <button class="dashboard-nav-item" type="button" data-dashboard-nav="Notificaciones">
+            <span aria-hidden="true">♧</span>Notificaciones
+          </button>
+          <button class="dashboard-nav-item" type="button" data-dashboard-nav="Recordatorios">
+            <span aria-hidden="true">◷</span>Recordatorios
+          </button>
+        </nav>
+        <div class="dashboard-account">
+          <span class="account-avatar" aria-hidden="true" data-account-initial>P</span>
+          <span class="account-copy">
+            <span class="account-name" data-account-name>Estudiante</span>
+            <span class="account-role">Estudiante</span>
+          </span>
+          <button class="logout-button" type="button" data-logout aria-label="Cerrar sesión">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M10 17l5-5-5-5M15 12H3"></path>
+              <path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"></path>
+            </svg>
+          </button>
+        </div>
+      </aside>
+
+      <div class="dashboard-content">
+        <header class="dashboard-topbar">
+          <button class="dashboard-menu-button" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" data-dashboard-menu>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          <span class="dashboard-topbar-brand">Pro<span class="brand-accent">Tasker</span></span>
+        </header>
+
+        <div class="dashboard-main">
+          <div class="dashboard-heading">
+            <div>
+              <h1 id="dashboard-title" tabindex="-1">Hola, <span data-dashboard-name>Estudiante</span> <span aria-hidden="true">👋</span></h1>
+              <p data-dashboard-date></p>
+            </div>
+          </div>
+          <p class="dashboard-feedback" role="status" aria-live="polite" data-dashboard-feedback hidden></p>
+
+          <section class="stats-grid" aria-label="Resumen de actividad">
+            <article class="stat-card stat-streak">
+              <span class="stat-icon" aria-hidden="true">♨</span>
+              <p class="stat-value" data-streak-value>0 días</p>
+              <h2>Racha actual</h2>
+              <p class="stat-caption">Completa una tarea hoy</p>
+            </article>
+            <article class="stat-card stat-completed">
+              <span class="stat-icon" aria-hidden="true">✓</span>
+              <p class="stat-value" data-completed-value>0 / 0</p>
+              <h2>Completadas hoy</h2>
+              <p class="stat-caption">Sin tareas hoy</p>
+            </article>
+            <article class="stat-card stat-pending">
+              <span class="stat-icon" aria-hidden="true">◎</span>
+              <p class="stat-value" data-pending-value>0</p>
+              <h2>Pendientes totales</h2>
+              <p class="stat-caption">tareas por completar</p>
+            </article>
+          </section>
+
+          <section class="dashboard-page" data-dashboard-page="Inicio" aria-labelledby="today-title">
+            <div class="quick-actions">
+              <p>Acciones rápidas</p>
+              <button class="button button-primary" type="button" data-create-task>+ Nueva tarea</button>
+              <button class="button button-secondary" type="button" data-go-to-calendar>Ver calendario</button>
+            </div>
+            <div class="task-panels">
+              <section class="task-panel" aria-labelledby="today-title">
+                <h2 id="today-title">Tareas de hoy</h2>
+                <div class="task-list" data-today-tasks></div>
+                <div class="empty-state" data-today-empty>
+                  <span aria-hidden="true">▦</span>
+                  <p>Sin tareas para hoy.</p>
+                </div>
+              </section>
+              <section class="task-panel" aria-labelledby="upcoming-title">
+                <h2 id="upcoming-title">Próximas tareas</h2>
+                <div class="task-list" data-upcoming-tasks></div>
+                <div class="empty-state" data-upcoming-empty>
+                  <span aria-hidden="true">☑</span>
+                  <p>¡Todo al día! No hay tareas pendientes.</p>
+                </div>
+              </section>
+              <section class="task-panel urgent-panel" aria-labelledby="urgent-title">
+                <h2 id="urgent-title">Tareas urgentes</h2>
+                <p class="panel-description">Pendientes de prioridad alta o con entrega próxima.</p>
+                <div class="task-list" data-urgent-tasks></div>
+                <div class="empty-state compact-empty" data-urgent-empty>
+                  <p>No hay tareas urgentes.</p>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="dashboard-page" data-dashboard-page="Tareas" aria-labelledby="tasks-title" hidden>
+            <div class="page-heading">
+              <div>
+                <h2 id="tasks-title" tabindex="-1">Mis tareas</h2>
+                <p>Organiza tus actividades y fechas de entrega.</p>
+              </div>
+              <button class="button button-primary" type="button" data-create-task>Crear tarea</button>
+            </div>
+            <div class="task-list task-list-all" data-all-tasks></div>
+            <div class="empty-state task-empty" data-all-empty>
+              <span aria-hidden="true">☑</span>
+              <p>Aún no tienes tareas. Crea una para comenzar.</p>
+              <button class="button button-secondary" type="button" data-create-task>Crear tarea</button>
+            </div>
+          </section>
+
+          <section class="dashboard-page" data-dashboard-page="Calendario" aria-labelledby="calendar-title" hidden>
+            <div class="page-heading calendar-heading">
+              <div>
+                <h2 id="calendar-title" tabindex="-1">Calendario</h2>
+                <p>Consulta tus tareas por fecha.</p>
+              </div>
+              <div class="calendar-controls">
+                <button class="task-action" type="button" aria-label="Mes anterior" data-calendar-prev>←</button>
+                <button class="task-action" type="button" data-calendar-today>Hoy</button>
+                <button class="task-action" type="button" aria-label="Mes siguiente" data-calendar-next>→</button>
+              </div>
+            </div>
+            <section class="calendar-panel" aria-label="Calendario mensual">
+              <h3 class="calendar-month" data-calendar-month></h3>
+              <div class="calendar-grid calendar-weekdays" aria-hidden="true">
+                <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+              </div>
+              <div class="calendar-grid calendar-days" role="group" aria-label="Días del mes" data-calendar-days></div>
+            </section>
+            <section class="calendar-events" aria-labelledby="calendar-events-title">
+              <h3 id="calendar-events-title" data-calendar-selected-date>Tareas del día</h3>
+              <div class="task-list" data-calendar-events></div>
+              <div class="empty-state compact-empty" data-calendar-empty>
+                <p>No hay tareas en esta fecha.</p>
+              </div>
+            </section>
+          </section>
+
+          <section class="dashboard-page" data-dashboard-page="Progreso" aria-labelledby="progress-title" hidden>
+            <div class="page-heading">
+              <div>
+                <h2 id="progress-title" tabindex="-1">Historial y progreso</h2>
+                <p>Tu actividad de los últimos siete días.</p>
+              </div>
+            </div>
+            <div class="progress-summary" aria-label="Resumen semanal">
+              <article class="progress-stat">
+                <span>Completadas esta semana</span>
+                <strong data-weekly-completed>0</strong>
+              </article>
+              <article class="progress-stat">
+                <span>Tareas pendientes</span>
+                <strong data-weekly-pending>0</strong>
+              </article>
+              <article class="progress-stat">
+                <span>Avance de tareas vencidas</span>
+                <strong data-weekly-rate>0%</strong>
+              </article>
+            </div>
+            <section class="progress-panel" aria-labelledby="weekly-chart-title">
+              <h3 id="weekly-chart-title">Tareas completadas por día</h3>
+              <div class="weekly-chart" data-weekly-chart></div>
+            </section>
+          </section>
+
+          <section class="dashboard-page" data-dashboard-page="Enfoque" aria-labelledby="focus-title" hidden>
+            <div class="page-heading">
+              <div>
+                <h2 id="focus-title" tabindex="-1">Modo enfoque</h2>
+                <p>Elige una tarea pendiente y trabaja en ella sin distracciones.</p>
+              </div>
+            </div>
+            <div class="focus-layout">
+              <section class="focus-picker" aria-labelledby="focus-picker-title">
+                <h3 id="focus-picker-title">Tareas pendientes</h3>
+                <div class="task-list" data-focus-list></div>
+                <div class="empty-state compact-empty" data-focus-empty>
+                  <p>No tienes tareas pendientes. ¡Buen trabajo!</p>
+                </div>
+              </section>
+              <section class="focus-workspace" aria-labelledby="focus-workspace-title" data-focus-workspace>
+                <span class="focus-symbol" aria-hidden="true">◉</span>
+                <h3 id="focus-workspace-title">Selecciona una tarea</h3>
+                <p data-focus-description>Tu tarea seleccionada y sus detalles aparecerán aquí.</p>
+                <div class="focus-task-meta" data-focus-meta></div>
+                <div class="focus-actions">
+                  <button class="button button-primary" type="button" data-focus-complete disabled>Completar tarea</button>
+                  <button class="button button-secondary" type="button" data-focus-edit disabled>Editar tarea</button>
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <dialog class="task-dialog" aria-labelledby="task-dialog-title" data-task-dialog>
+    <form class="task-form" data-task-form>
+      <div class="task-dialog-heading">
+        <div>
+          <h2 id="task-dialog-title" tabindex="-1" data-task-dialog-title>Nueva tarea</h2>
+          <p>Completa los detalles de tu actividad.</p>
+        </div>
+        <button class="dialog-close" type="button" aria-label="Cancelar y cerrar" data-close-task-dialog>×</button>
+      </div>
+      <input type="hidden" name="task-id" data-task-id>
+      <label for="task-title">Título</label>
+      <input class="auth-input" id="task-title" name="title" type="text" maxlength="120" required>
+      <label for="task-description">Descripción</label>
+      <textarea class="auth-input task-description" id="task-description" name="description" rows="3" maxlength="1000"></textarea>
+      <div class="task-form-row">
+        <div>
+          <label for="task-date">Fecha</label>
+          <input class="auth-input" id="task-date" name="date" type="date" required>
+        </div>
+        <div>
+          <label for="task-time">Hora</label>
+          <input class="auth-input" id="task-time" name="time" type="time" required>
+        </div>
+      </div>
+      <label for="task-priority">Prioridad</label>
+      <select class="auth-input" id="task-priority" name="priority" required>
+        <option value="low">Baja</option>
+        <option value="medium" selected>Media</option>
+        <option value="high">Alta</option>
+      </select>
+      <div class="task-form-actions">
+        <button class="button button-secondary" type="button" data-close-task-dialog>Cancelar</button>
+        <button class="button button-primary" type="submit">Guardar tarea</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="scripts/features.js" defer></script>
+  <script src="scripts/tasks.js" defer></script>
+  <script src="scripts/calendar.js" defer></script>
+  <script src="scripts/progress.js" defer></script>
+  <script src="scripts/dashboard.js" defer></script>
+  <script src="scripts/app.js" defer></script>
+</body>
+</html>
