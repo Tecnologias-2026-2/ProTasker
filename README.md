@@ -38,8 +38,6 @@ La versión actual es un prototipo frontend. La autenticación y el registro son
 - **RNF05:** Portabilidad: capacidad de adaptarse a versión web u otros entornos sin reconstrucción total.
 - **RNF06:** Compatibilidad: compatible con Android e iOS, adaptable a diferentes tamaños de pantalla.
 
-La implementación incorpora prácticas básicas de accesibilidad, pero no representa una certificación WCAG. Se recomienda complementarla con auditorías automatizadas y pruebas con tecnologías de asistencia.
-
 ## 4. Diagramas UML
 
 ### Diagrama de Casos de Uso
