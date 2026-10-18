@@ -22,29 +22,21 @@ La versión actual es un prototipo frontend. La autenticación y el registro son
 
 ### 3.1 Requerimientos Funcionales
 
-- **RF01:** El sistema debe mostrar una portada con información de ProTasker y sus funciones principales.
-- **RF02:** El sistema debe permitir abrir un flujo simulado de inicio de sesión sin conectarse a servicios externos.
-- **RF03:** El sistema debe permitir un flujo de registro de demostración con nombre, correo y contraseña.
-- **RF04:** El sistema debe mostrar una verificación simulada con el código de demostración `265378`; no debe enviar correos.
-- **RF05:** El sistema debe permitir crear, editar, completar, reabrir y eliminar tareas.
-- **RF06:** Cada tarea debe incluir título, descripción opcional, fecha, hora, prioridad y estado de completado.
-- **RF07:** El sistema debe mostrar tareas de hoy, próximas y urgentes. Se consideran urgentes las tareas pendientes de prioridad alta o con entrega hoy o dentro de los próximos dos días.
-- **RF08:** El sistema debe conservar las tareas en el almacenamiento local del navegador, separadas por correo normalizado.
-- **RF09:** El sistema debe mostrar un calendario mensual con navegación entre meses, selección de fechas y consulta de tareas asociadas.
-- **RF10:** El sistema debe mostrar un resumen de tareas completadas durante los últimos siete días, tareas pendientes y porcentaje de tareas vencidas completadas.
-- **RF11:** El sistema debe permitir seleccionar una tarea pendiente en el modo enfoque y consultar sus detalles, editarla o completarla.
-- **RF12:** El sistema debe permitir cerrar sesión y regresar a la portada.
-
-El acceso con Google, las notificaciones y los recordatorios aparecen como elementos de interfaz, pero todavía no están conectados a servicios ni tienen su funcionamiento completo implementado.
+- **RF01:** Creación de rutinas: el sistema debe gestionar los hábitos que el usuario registre, permitiendo crearlos, editarlos y eliminarlos.
+- **RF02:** Categorización: el usuario clasificará sus tareas en el ámbito académico, laboral o personal.
+- **RF03:** Checklist: el usuario podrá marcar una tarea como completada al finalizarla.
+- **RF04:** Calendario: visualización de eventos en formato semanal o mensual.
+- **RF05:** Logros: el usuario desbloquea logros al completar eventos en días consecutivos (racha).
+- **RF06:** Modo Enfoque: bloqueo de notificaciones externas durante el tiempo establecido por el usuario.
 
 ### 3.2 Requerimientos No Funcionales
 
-- **RNF01:** La interfaz debe adaptarse a pantallas de móvil, tablet y escritorio.
-- **RNF02:** La estructura debe utilizar HTML semántico y estilos basados en CSS Grid y Flexbox.
-- **RNF03:** Los formularios deben incluir etiquetas, controles nativos y validación del navegador.
-- **RNF04:** Las acciones principales deben poder utilizarse con teclado y mostrar indicadores de foco.
-- **RNF05:** La interfaz debe contemplar nombres accesibles para controles, estados de navegación y preferencia de movimiento reducido.
-- **RNF06:** El prototipo no debe requerir framework, backend ni dependencias externas para abrirse.
+- **RNF01:** Interfaz y usabilidad: La aplicación deberá contar con un diseño intuitivo, organizado y fácil de comprender, permitiendo que el usuario acceda a las funciones principales sin dificultad. La navegación deberá ser clara, coherente y consistente en todas las pantallas, garantizando una experiencia de usuario fluida.
+- **RNF02:** Accesibilidad: El sistema deberá incluir opciones que faciliten su uso a diferentes tipos de usuarios, tales como ajuste de tamaño de texto, contraste adecuado de colores y compatibilidad con herramientas de accesibilidad propias del sistema operativo.
+- **RNF03:** Rendimiento: La aplicación deberá presentar tiempos de carga reducidos y una respuesta rápida ante las acciones del usuario. Asimismo, deberá optimizar el consumo de batería y datos móviles para no afectar el rendimiento general del dispositivo.
+- **RNF04:** Disponibilidad: El servicio deberá estar disponible de manera continua, asegurando un funcionamiento estable con mínimos tiempos de inactividad.
+- **RNF05:** Portabilidad: capacidad de adaptarse a versión web u otros entornos sin reconstrucción total.
+- **RNF06:** Compatibilidad: compatible con Android e iOS, adaptable a diferentes tamaños de pantalla.
 
 La implementación incorpora prácticas básicas de accesibilidad, pero no representa una certificación WCAG. Se recomienda complementarla con auditorías automatizadas y pruebas con tecnologías de asistencia.
 
