@@ -4,8 +4,9 @@ ProTasker es una aplicación web de demostración para organizar actividades aca
 
 ## Integrantes
 
-- Nombre completo — Código
-- Nombre completo — Código
+- Alejandro Ramírez Díaz — 1202749
+- Julián Sebastián Lozada Lozano — 1202799
+- Miguél Andrés Lguizamón Monroy - 1202741
 
 ## 1. Objetivo General
 
@@ -15,36 +16,27 @@ Desarrollar una aplicación web que ayude a estudiantes a organizar sus activida
 
 ProTasker está pensado para estudiantes que desean organizar tareas y entregas individuales. Se utiliza desde un navegador moderno en computadora, tablet o teléfono. El usuario puede crear tareas con descripción, fecha, hora y prioridad, y luego consultarlas en el panel principal, el calendario, el historial de progreso o el modo enfoque.
 
-La aplicación utiliza Firebase Authentication para registrar e iniciar sesión con correo y contraseña o con Google, y Cloud Firestore para guardar y sincronizar las tareas de cada usuario. Para ejecutarla, primero configura los proveedores de acceso en un proyecto Firebase propio y publica las reglas de seguridad incluidas.
+La versión actual es un prototipo frontend. La autenticación y el registro son simulados, y las tareas se guardan en `localStorage` en el navegador y dispositivo actuales. No se envían datos a un servidor ni se sincronizan entre dispositivos.
 
 ## 3. Requerimientos del Sistema
 
 ### 3.1 Requerimientos Funcionales
 
-- **RF01:** El sistema debe mostrar una portada con información de ProTasker y sus funciones principales.
-- **RF02:** El sistema debe permitir registrar e iniciar sesión con correo/contraseña o Google mediante Firebase Authentication.
-- **RF03:** El sistema debe guardar las tareas en Cloud Firestore, aisladas por el identificador de cada usuario autenticado.
-- **RF04:** El sistema debe permitir crear, editar, completar, reabrir y eliminar tareas.
-- **RF05:** Cada tarea debe incluir título, descripción opcional, fecha, hora, prioridad y estado de completado.
-- **RF06:** El sistema debe mostrar tareas de hoy, próximas y urgentes. Se consideran urgentes las tareas pendientes de prioridad alta o con entrega hoy o dentro de los próximos dos días.
-- **RF07:** El sistema debe sincronizar los cambios de tareas con Firestore en tiempo real.
-- **RF08:** El sistema debe mostrar un calendario mensual con navegación entre meses, selección de fechas y consulta de tareas asociadas.
-- **RF09:** El sistema debe mostrar un resumen de tareas completadas durante los últimos siete días, tareas pendientes y porcentaje de tareas vencidas completadas.
-- **RF10:** El sistema debe permitir seleccionar una tarea pendiente en el modo enfoque y consultar sus detalles, editarla o completarla.
-- **RF11:** El sistema debe permitir cerrar sesión y regresar a la portada.
-
-Las notificaciones y los recordatorios aparecen como elementos de interfaz, pero todavía no están conectados a servicios ni tienen su funcionamiento completo implementado.
+- **RF01:** Creación de rutinas: el sistema debe gestionar los hábitos que el usuario registre, permitiendo crearlos, editarlos y eliminarlos.
+- **RF02:** Categorización: el usuario clasificará sus tareas en el ámbito académico, laboral o personal.
+- **RF03:** Checklist: el usuario podrá marcar una tarea como completada al finalizarla.
+- **RF04:** Calendario: visualización de eventos en formato semanal o mensual.
+- **RF05:** Logros: el usuario desbloquea logros al completar eventos en días consecutivos (racha).
+- **RF06:** Modo Enfoque: bloqueo de notificaciones externas durante el tiempo establecido por el usuario.
 
 ### 3.2 Requerimientos No Funcionales
 
-- **RNF01:** La interfaz debe adaptarse a pantallas de móvil, tablet y escritorio.
-- **RNF02:** La estructura debe utilizar HTML semántico y estilos basados en CSS Grid y Flexbox.
-- **RNF03:** Los formularios deben incluir etiquetas, controles nativos y validación del navegador.
-- **RNF04:** Las acciones principales deben poder utilizarse con teclado y mostrar indicadores de foco.
-- **RNF05:** La interfaz debe contemplar nombres accesibles para controles, estados de navegación y preferencia de movimiento reducido.
-- **RNF06:** La aplicación utiliza el SDK web de Firebase cargado desde el CDN oficial y no requiere framework ni proceso de compilación.
-
-La implementación incorpora prácticas básicas de accesibilidad, pero no representa una certificación WCAG. Se recomienda complementarla con auditorías automatizadas y pruebas con tecnologías de asistencia.
+- **RNF01:** Interfaz y usabilidad: La aplicación deberá contar con un diseño intuitivo, organizado y fácil de comprender, permitiendo que el usuario acceda a las funciones principales sin dificultad. La navegación deberá ser clara, coherente y consistente en todas las pantallas, garantizando una experiencia de usuario fluida.
+- **RNF02:** Accesibilidad: El sistema deberá incluir opciones que faciliten su uso a diferentes tipos de usuarios, tales como ajuste de tamaño de texto, contraste adecuado de colores y compatibilidad con herramientas de accesibilidad propias del sistema operativo.
+- **RNF03:** Rendimiento: La aplicación deberá presentar tiempos de carga reducidos y una respuesta rápida ante las acciones del usuario. Asimismo, deberá optimizar el consumo de batería y datos móviles para no afectar el rendimiento general del dispositivo.
+- **RNF04:** Disponibilidad: El servicio deberá estar disponible de manera continua, asegurando un funcionamiento estable con mínimos tiempos de inactividad.
+- **RNF05:** Portabilidad: capacidad de adaptarse a versión web u otros entornos sin reconstrucción total.
+- **RNF06:** Compatibilidad: compatible con Android e iOS, adaptable a diferentes tamaños de pantalla.
 
 ## 4. Diagramas UML
 
@@ -54,7 +46,7 @@ El diagrama debe representar al estudiante como actor y sus acciones principales
 
 ### Diagrama de Secuencia
 
-El diagrama puede representar el flujo de creación de una tarea: el estudiante completa el formulario, la interfaz valida los campos, guarda la tarea en Firestore y actualiza las listas, el calendario y los indicadores del panel. Este diagrama aún debe agregarse como entregable.
+El diagrama puede representar el flujo de creación de una tarea: el estudiante completa el formulario, la interfaz valida los campos, guarda la tarea en `localStorage` y actualiza las listas, el calendario y los indicadores del panel. Este diagrama aún debe agregarse como entregable.
 
 ## 5. URL del Prototipo
 
@@ -64,19 +56,13 @@ El enlace puede requerir permisos de Figma. La aplicación actual también inclu
 
 ## 6. Diseño de Base de Datos
 
-La aplicación usa Firebase Authentication para las cuentas. Firebase conserva el correo y el nombre de perfil; las contraseñas las administra Authentication y no se guardan en Firestore. Las tareas se guardan en Cloud Firestore con esta estructura:
-
-```text
-users/{uid}/tasks/{taskId}
-```
-
-Cada usuario solo puede leer y modificar documentos bajo su propio `uid`. Las reglas correspondientes están en `firestore.rules` y deben publicarse en Firebase antes de usar la base de datos.
+La versión actual no utiliza una base de datos. Las tareas se serializan como JSON en `localStorage`, con una clave separada para cada correo normalizado. Los datos permanecen en el navegador actual; borrar los datos del sitio los elimina. No hay sincronización con un backend.
 
 Cada tarea guardada contiene:
 
 | Campo | Descripción |
 |---|---|
-| `id` | Identificador del documento de Firestore. |
+| `id` | Identificador generado en el navegador. |
 | `title` | Título de la actividad. |
 | `description` | Descripción opcional. |
 | `date` | Fecha de entrega. |
@@ -85,7 +71,7 @@ Cada tarea guardada contiene:
 | `completed` | Estado actual de completado. |
 | `completedAt` | Fecha y hora de finalización o `null` si la tarea está pendiente. |
 
-El estado actual conserva el estado de cada tarea, pero no registra un historial inmutable de todos sus cambios. Las tareas que se hubieran guardado previamente en el almacenamiento local del navegador no se migran automáticamente.
+No hay tablas SQL ni imagen de un modelo de base de datos en el repositorio. El estado actual conserva el estado de cada tarea, pero no registra un historial inmutable de todos sus cambios.
 
 ## 7. Documentación del Sistema
 
@@ -103,11 +89,8 @@ ProTasker/
 │   ├── calendar.js
 │   ├── dashboard.js
 │   ├── features.js
-│   ├── firebase-config.js
-│   ├── firebase.js
 │   ├── progress.js
 │   └── tasks.js
-├── firestore.rules
 └── skills/
     ├── accessibility/
     ├── best-practices/
@@ -117,43 +100,39 @@ ProTasker/
     └── web-quality-audit/
 ```
 
-- `index.html`: estructura semántica y contenido de la portada, autenticación, panel y formulario de tareas.
+- `index.html`: estructura semántica y contenido de la portada, autenticación, verificación, panel y formulario de tareas.
 - `css/`: estilos visuales, componentes, estados de interacción y adaptación a tamaños de pantalla.
 - `css/styles.css`: hoja principal de estilos, con el tema, layouts Grid/Flexbox y media queries.
 - `assets/`: recursos estáticos; actualmente no contiene recursos adicionales.
-- `scripts/app.js`: flujo entre portada, inicio de sesión, registro y panel.
-- `scripts/firebase-config.js`: configuración pública del proyecto Firebase que debes completar antes de ejecutar la aplicación.
-- `scripts/firebase.js`: inicialización de Firebase Authentication y Cloud Firestore, y operaciones de cuentas y tareas.
+- `scripts/app.js`: flujo entre portada, inicio de sesión, registro, verificación y panel.
 - `scripts/features.js`: interacción de las tarjetas de funciones de la portada.
-- `scripts/tasks.js`: formulario, tarjetas, acciones y sincronización de tareas con Firestore.
+- `scripts/tasks.js`: formulario, tarjetas, acciones y persistencia local de tareas.
 - `scripts/dashboard.js`: navegación del panel, métricas, acciones rápidas y modo enfoque.
 - `scripts/calendar.js`: calendario mensual y consulta de tareas por fecha.
 - `scripts/progress.js`: indicadores semanales y gráfica de actividad.
 - `skills/`: referencias de calidad web disponibles en el repositorio.
 
-Los archivos JavaScript se cargan como scripts clásicos con `defer`, en el orden declarado al final de `index.html`. El SDK de Firebase se carga desde el CDN oficial. No se necesita un proceso de compilación.
+Los archivos JavaScript se cargan como scripts clásicos con `defer`, en el orden declarado al final de `index.html`. No se necesita un proceso de compilación.
 
 ### Funcionamiento de las Vistas
 
 - **Portada:** presenta el producto y permite expandir tarjetas de funciones.
-- **Inicio de sesión:** Firebase Authentication valida el correo y la contraseña, o autentica mediante una ventana emergente de Google. Si existe una sesión activa, se restaura al volver a cargar la aplicación.
-- **Registro:** crea una cuenta de Firebase Authentication con nombre, correo y contraseña. Firebase administra la contraseña; la aplicación no la almacena en la base de datos.
+- **Inicio de sesión:** cualquier correo y contraseña que cumplan la validación HTML abre el panel; no se autentica una cuenta real. El nombre mostrado se obtiene de la parte del correo anterior a `@`.
+- **Registro:** solicita nombre, correo y contraseña, y lleva a la pantalla de verificación de demostración.
+- **Verificación:** el código `265378` abre el panel. Un código incorrecto muestra un mensaje; reenviar solo vuelve a mostrar el código en pantalla.
 - **Panel de inicio:** muestra la fecha, racha, tareas completadas hoy, pendientes, accesos rápidos y listas de tareas.
 - **Mis tareas:** permite crear, editar, completar, reabrir y eliminar tareas; eliminar solicita confirmación.
 - **Calendario:** muestra tareas por día y permite cambiar de mes o volver al día actual.
-- **Historial y progreso:** calcula las tareas completadas en los últimos siete días y otros indicadores a partir de las tareas sincronizadas.
+- **Historial y progreso:** calcula las tareas completadas en los últimos siete días y otros indicadores a partir de las tareas locales.
 - **Modo enfoque:** presenta las tareas pendientes y permite actuar sobre la tarea seleccionada.
-- **Cerrar sesión:** finaliza la sesión de Firebase y regresa a la portada. Las tareas permanecen en Firestore.
+- **Cerrar sesión:** regresa a la portada; no elimina las tareas guardadas localmente.
 
 ## 8. Instalación y Ejecución
 
-1. Crear un proyecto en [Firebase Console](https://console.firebase.google.com/) y registrar una aplicación web.
-2. Activar **Authentication → Proveedores de acceso → Correo electrónico/contraseña** y **Google**. Al configurar Google, selecciona un correo de asistencia del proyecto.
-3. Crear una base de datos en **Firestore Database**.
-4. Copiar la configuración de la aplicación web en `scripts/firebase-config.js`. Los valores de configuración del cliente se publican en el navegador; no pongas contraseñas ni claves privadas en ese archivo.
-5. Publicar las reglas de `firestore.rules` en la sección **Reglas** de Firestore.
-6. Desplegar la aplicación con `npx -y firebase-tools@latest deploy --only hosting`.
-7. Abrir la URL HTTPS que muestra Firebase Hosting (por ejemplo, `https://protaskerhtml.web.app`) y usar **Comenzar gratis** o **Google** para crear/iniciar sesión. Para probarla localmente, usar `http://localhost` o `http://127.0.0.1` y autorizar ese dominio en **Authentication → Settings → Authorized domains**.
-8. Crear tareas desde **Mis tareas** para probar su sincronización, el calendario, las urgencias, el progreso y el modo enfoque.
+1. Clonar el repositorio o descargar los archivos del proyecto.
+2. Abrir `index.html` directamente en un navegador moderno, o servir la carpeta con una extensión como Live Server en Visual Studio Code.
+3. Seleccionar **Iniciar sesión** para acceder al panel de demostración, o **Comenzar gratis** para probar el registro.
+4. En el flujo de registro, ingresar el código de verificación `265378`.
+5. Crear tareas desde **Mis tareas** para probar el calendario, las urgencias, el progreso y el modo enfoque.
 
-No se requiere `npm install`. Después del despliegue, la aplicación queda disponible en HTTPS desde cualquier navegador, sin mantener un servidor local abierto. El proyecto y los servicios de Firebase deben estar configurados para que el registro, el inicio de sesión y el guardado funcionen. Si la configuración falta o es inválida, la interfaz muestra un mensaje en lugar de simular un inicio de sesión.
+No se requiere `npm install`, configuración de base de datos ni credenciales. Los datos creados son de demostración y se almacenan únicamente en el navegador actual.
