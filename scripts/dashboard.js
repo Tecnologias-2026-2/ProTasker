@@ -179,7 +179,14 @@
       }
     });
 
-    document.querySelector("[data-logout]").addEventListener("click", onLogout);
+    document.querySelector("[data-logout]").addEventListener("click", async () => {
+      try {
+        await onLogout();
+      } catch (error) {
+        dashboardFeedback.textContent = window.ProTasker.firebase.errorMessage(error);
+        dashboardFeedback.hidden = false;
+      }
+    });
     document.querySelector("[data-go-to-calendar]").addEventListener("click", () => {
       navButtons.find((button) => button.dataset.dashboardNav === "Calendario").click();
     });
@@ -202,8 +209,9 @@
     });
 
     return {
-      prepare(name, email) {
-        const displayName = name.trim() || email.split("@")[0] || "Estudiante";
+      prepare(user) {
+        const email = user.email || "";
+        const displayName = user.displayName?.trim() || email.split("@")[0] || "Estudiante";
         dashboardName.textContent = displayName;
         document.querySelector("[data-account-name]").textContent = displayName;
         document.querySelector("[data-account-initial]").textContent = displayName.charAt(0).toLocaleUpperCase("es");
@@ -213,9 +221,13 @@
           month: "long",
           year: "numeric"
         }).format(new Date());
-        taskManager.setUser(email);
+        taskManager.setUser(user.uid);
         reset();
         dashboardTitle.focus();
+      },
+      clearSession() {
+        taskManager.setUser(null);
+        reset();
       },
       reset
     };

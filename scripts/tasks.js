@@ -1,5 +1,4 @@
 (function () {
-  const storagePrefix = "protasker.tasks:";
   const priorities = {
     low: "Baja",
     medium: "Media",
@@ -32,7 +31,8 @@
       document.querySelector("[data-urgent-empty]")
     ];
     let tasks = [];
-    let storageKey = `${storagePrefix}guest`;
+    let userId = null;
+    let unsubscribeTasks = null;
     let returnFocus = null;
 
     function showFeedback(message) {
@@ -40,13 +40,33 @@
       feedback.hidden = !message;
     }
 
-    function persist() {
+    async function saveTask(task) {
       try {
-        localStorage.setItem(storageKey, JSON.stringify(tasks));
+        await window.ProTasker.firebase.saveTask(userId, task);
+        const index = tasks.findIndex((item) => item.id === task.id);
+        if (index === -1) {
+          tasks = [...tasks, task];
+        } else {
+          tasks = tasks.map((item) => item.id === task.id ? task : item);
+        }
         showFeedback("");
+        render();
         return true;
-      } catch {
-        showFeedback("No se pudieron guardar los cambios en el almacenamiento de este navegador.");
+      } catch (error) {
+        showFeedback(`No se pudo guardar la tarea en Firebase. ${window.ProTasker.firebase.errorMessage(error)}`);
+        return false;
+      }
+    }
+
+    async function deleteTask(taskId) {
+      try {
+        await window.ProTasker.firebase.deleteTask(userId, taskId);
+        tasks = tasks.filter((item) => item.id !== taskId);
+        showFeedback("");
+        render();
+        return true;
+      } catch (error) {
+        showFeedback(`No se pudo eliminar la tarea en Firebase. ${window.ProTasker.firebase.errorMessage(error)}`);
         return false;
       }
     }
@@ -62,18 +82,26 @@
         typeof value.completed === "boolean";
     }
 
-    function load() {
-      try {
-        const saved = localStorage.getItem(storageKey);
-        tasks = saved ? JSON.parse(saved) : [];
-        if (!Array.isArray(tasks) || !tasks.every(isTask)) {
-          throw new TypeError("El formato de tareas almacenadas no es válido.");
-        }
-      } catch {
-        tasks = [];
-        showFeedback("No se pudieron cargar las tareas guardadas. Se mostrará una lista vacía en esta sesión.");
-      }
+    function setUser(uid) {
+      unsubscribeTasks?.();
+      unsubscribeTasks = null;
+      userId = uid;
+      tasks = [];
       render();
+      if (!uid) {
+        return;
+      }
+      unsubscribeTasks = window.ProTasker.firebase.subscribeTasks(uid, (savedTasks) => {
+        if (!Array.isArray(savedTasks) || !savedTasks.every(isTask)) {
+          showFeedback("Firebase devolvió una tarea con formato no válido. Revisa los documentos de Firestore.");
+          return;
+        }
+        tasks = savedTasks;
+        showFeedback("");
+        render();
+      }, (error) => {
+        showFeedback(`No se pudieron cargar las tareas de Firebase. ${window.ProTasker.firebase.errorMessage(error)}`);
+      });
     }
 
     function compareTasks(first, second) {
@@ -195,16 +223,16 @@
       }
     }
 
-    function setCompleted(taskId, completed) {
+    async function setCompleted(taskId, completed) {
       const task = tasks.find((item) => item.id === taskId);
       if (!task) {
         return false;
       }
-      task.completed = completed;
-      task.completedAt = completed ? new Date().toISOString() : null;
-      persist();
-      render();
-      return true;
+      return saveTask({
+        ...task,
+        completed,
+        completedAt: completed ? new Date().toISOString() : null
+      });
     }
 
     document.querySelectorAll("[data-create-task]").forEach((button) => {
@@ -232,7 +260,7 @@
       }
     });
 
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (!form.reportValidity()) {
         return;
@@ -254,17 +282,12 @@
         completed: existing ? existing.completed : false,
         completedAt: existing ? existing.completedAt : null
       };
-      if (existing) {
-        tasks = tasks.map((item) => item.id === id ? task : item);
-      } else {
-        tasks.push(task);
+      if (await saveTask(task)) {
+        closeForm();
       }
-      persist();
-      render();
-      closeForm();
     });
 
-    dashboard.addEventListener("click", (event) => {
+    dashboard.addEventListener("click", async (event) => {
       const button = event.target.closest("[data-task-action]");
       if (!button) {
         return;
@@ -283,13 +306,14 @@
         if (!window.confirm(`¿Eliminar la tarea «${task.title}»?`)) {
           return;
         }
-        tasks = tasks.filter((item) => item.id !== task.id);
+        if (!await deleteTask(task.id)) {
+          return;
+        }
       } else {
-        task.completed = !task.completed;
-        task.completedAt = task.completed ? new Date().toISOString() : null;
+        if (!await setCompleted(task.id, !task.completed)) {
+          return;
+        }
       }
-      persist();
-      render();
       const nextAction = [...dashboard.querySelectorAll("[data-task-action]")].find((item) => {
         return item.dataset.taskAction === taskAction && item.dataset.taskId === task.id;
       });
@@ -297,10 +321,7 @@
     });
 
     return {
-      setUser(email) {
-        storageKey = `${storagePrefix}${encodeURIComponent(email.trim().toLowerCase())}`;
-        load();
-      },
+      setUser,
       getTasks() {
         return tasks;
       },
