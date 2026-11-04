@@ -187,6 +187,10 @@
 
     function requestAccessToken() {
       return new Promise((resolve, reject) => {
+        if (window.location.protocol === "file:") {
+          reject(new Error("No abras index.html directamente. Usa la página publicada en GitHub Pages o inicia un servidor local como Live Server."));
+          return;
+        }
         const clientId = calendarClientId();
         if (!clientId) {
           reject(new Error("Configura PROTASKER_GOOGLE_CALENDAR_CLIENT_ID en scripts/firebase-config.js y habilita Google Calendar API."));
@@ -208,7 +212,17 @@
             tokenExpiresAt = Date.now() + Number(response.expires_in || 3600) * 1000 - 60_000;
             resolve();
           },
-          error_callback: (error) => reject(new Error(error.message || "No se pudo abrir la ventana de autorización de Google."))
+          error_callback: (error) => {
+            if (error.type === "popup_closed") {
+              reject(new Error("Google cerró la ventana antes de devolver el permiso. En Google Cloud, agrega el origen de tu sitio (por ejemplo, https://tu-usuario.github.io) a los orígenes autorizados del cliente OAuth; no incluyas la ruta del repositorio. También puedes probar sin bloqueadores de ventanas emergentes."));
+              return;
+            }
+            if (error.type === "popup_failed_to_open") {
+              reject(new Error("El navegador bloqueó la ventana de Google. Permite las ventanas emergentes para este sitio y vuelve a intentarlo."));
+              return;
+            }
+            reject(new Error(error.message || "No se pudo abrir la ventana de autorización de Google."));
+          }
         });
         tokenClient.requestAccessToken({ prompt: "select_account" });
       });
