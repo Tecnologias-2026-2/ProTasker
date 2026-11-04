@@ -963,17 +963,44 @@ input:focus-visible,
 }
 
 .calendar-heading {
-  align-items: center;
+  align-items: flex-start;
 }
 
 .calendar-controls {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+}
+
+.calendar-sync-intro {
+  max-width: 560px;
+  line-height: 1.5;
+}
+
+.calendar-sync-status {
+  margin: -8px 0 16px;
+  color: var(--subtle);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.calendar-sync-status.is-error {
+  color: #ffaaa4;
+}
+
+.calendar-sync-status[hidden] {
+  display: none;
 }
 
 .calendar-controls .task-action {
   min-width: 40px;
   font-size: 15px;
+}
+
+.calendar-controls [hidden] {
+  display: none;
 }
 
 .calendar-panel,
@@ -1659,8 +1686,11 @@ input:focus-visible,
   }
 
   .calendar-heading {
-    flex-direction: row;
-    align-items: center;
+    align-items: stretch;
+  }
+
+  .calendar-controls {
+    justify-content: flex-start;
   }
 
   .quick-actions {

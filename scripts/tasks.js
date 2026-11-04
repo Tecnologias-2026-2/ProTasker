@@ -31,6 +31,7 @@
       document.querySelector("[data-urgent-empty]")
     ];
     let tasks = [];
+    let tasksLoaded = false;
     let userId = null;
     let unsubscribeTasks = null;
     let returnFocus = null;
@@ -87,6 +88,7 @@
       unsubscribeTasks = null;
       userId = uid;
       tasks = [];
+      tasksLoaded = false;
       render();
       if (!uid) {
         return;
@@ -96,6 +98,7 @@
           showFeedback("Firebase devolvió una tarea con formato no válido. Revisa los documentos de Firestore.");
           return;
         }
+        tasksLoaded = true;
         tasks = savedTasks;
         showFeedback("");
         render();
@@ -188,7 +191,7 @@
       emptyStates[1].hidden = upcomingTasks.length > 0;
       emptyStates[2].hidden = sorted.length > 0;
       emptyStates[3].hidden = urgentTasks.length > 0;
-      onChange(tasks);
+      onChange(tasks, tasksLoaded);
     }
 
     function openForm(task = null, opener = document.activeElement) {

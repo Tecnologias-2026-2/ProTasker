@@ -16,7 +16,7 @@ Desarrollar una aplicación web que ayude a estudiantes a organizar sus activida
 
 ProTasker está pensado para estudiantes que desean organizar tareas y entregas individuales. Se utiliza desde un navegador moderno en computadora, tablet o teléfono. El usuario puede crear tareas con descripción, fecha, hora y prioridad, y luego consultarlas en el panel principal, el calendario, el historial de progreso o el modo enfoque.
 
-La versión actual es un prototipo frontend. La autenticación y el registro son simulados, y las tareas se guardan en `localStorage` en el navegador y dispositivo actuales. No se envían datos a un servidor ni se sincronizan entre dispositivos.
+La aplicación usa Firebase Authentication para las cuentas y Cloud Firestore para guardar las tareas por usuario. El calendario de ProTasker también puede sincronizarlas con el calendario principal de una cuenta Google elegida por el usuario.
 
 ## 3. Requerimientos del Sistema
 
@@ -46,7 +46,7 @@ El diagrama debe representar al estudiante como actor y sus acciones principales
 
 ### Diagrama de Secuencia
 
-El diagrama puede representar el flujo de creación de una tarea: el estudiante completa el formulario, la interfaz valida los campos, guarda la tarea en `localStorage` y actualiza las listas, el calendario y los indicadores del panel. Este diagrama aún debe agregarse como entregable.
+El diagrama puede representar el flujo de creación de una tarea: el estudiante completa el formulario, la interfaz valida los campos, guarda la tarea en Firestore y actualiza las listas, el calendario y los indicadores del panel. Este diagrama aún debe agregarse como entregable.
 
 ## 5. URL del Prototipo
 
@@ -56,7 +56,7 @@ El enlace puede requerir permisos de Figma. La aplicación actual también inclu
 
 ## 6. Diseño de Base de Datos
 
-La versión actual no utiliza una base de datos. Las tareas se serializan como JSON en `localStorage`, con una clave separada para cada correo normalizado. Los datos permanecen en el navegador actual; borrar los datos del sitio los elimina. No hay sincronización con un backend.
+Las tareas se guardan en Firestore en `users/{uid}/tasks/{taskId}` y solo la cuenta autenticada propietaria puede leerlas o modificarlas. Las asociaciones entre tareas y eventos de Google Calendar se guardan en `users/{uid}/calendarEvents/{taskId}`, y el correo de la cuenta autorizada en `users/{uid}/calendarSettings/googleCalendar`; no se guarda ningún token de Google en Firestore.
 
 Cada tarea guardada contiene:
 
@@ -71,7 +71,7 @@ Cada tarea guardada contiene:
 | `completed` | Estado actual de completado. |
 | `completedAt` | Fecha y hora de finalización o `null` si la tarea está pendiente. |
 
-No hay tablas SQL ni imagen de un modelo de base de datos en el repositorio. El estado actual conserva el estado de cada tarea, pero no registra un historial inmutable de todos sus cambios.
+El estado actual conserva el estado de cada tarea, pero no registra un historial inmutable de todos sus cambios.
 
 ## 7. Documentación del Sistema
 
@@ -87,6 +87,7 @@ ProTasker/
 ├── scripts/
 │   ├── app.js
 │   ├── calendar.js
+│   ├── calendar-sync.js
 │   ├── dashboard.js
 │   ├── features.js
 │   ├── progress.js
@@ -106,7 +107,8 @@ ProTasker/
 - `assets/`: recursos estáticos; actualmente no contiene recursos adicionales.
 - `scripts/app.js`: flujo entre portada, inicio de sesión, registro, verificación y panel.
 - `scripts/features.js`: interacción de las tarjetas de funciones de la portada.
-- `scripts/tasks.js`: formulario, tarjetas, acciones y persistencia local de tareas.
+- `scripts/tasks.js`: formulario, tarjetas y acciones de tareas, persistidas en Firestore.
+- `scripts/calendar-sync.js`: autorización OAuth y sincronización unidireccional de tareas con Google Calendar.
 - `scripts/dashboard.js`: navegación del panel, métricas, acciones rápidas y modo enfoque.
 - `scripts/calendar.js`: calendario mensual y consulta de tareas por fecha.
 - `scripts/progress.js`: indicadores semanales y gráfica de actividad.
@@ -117,22 +119,32 @@ Los archivos JavaScript se cargan como scripts clásicos con `defer`, en el orde
 ### Funcionamiento de las Vistas
 
 - **Portada:** presenta el producto y permite expandir tarjetas de funciones.
-- **Inicio de sesión:** cualquier correo y contraseña que cumplan la validación HTML abre el panel; no se autentica una cuenta real. El nombre mostrado se obtiene de la parte del correo anterior a `@`.
-- **Registro:** solicita nombre, correo y contraseña, y lleva a la pantalla de verificación de demostración.
-- **Verificación:** el código `265378` abre el panel. Un código incorrecto muestra un mensaje; reenviar solo vuelve a mostrar el código en pantalla.
+- **Inicio de sesión y registro:** Firebase Authentication gestiona el acceso con correo y contraseña o con Google. Las tareas se guardan separadas por el identificador de usuario de Firebase.
 - **Panel de inicio:** muestra la fecha, racha, tareas completadas hoy, pendientes, accesos rápidos y listas de tareas.
 - **Mis tareas:** permite crear, editar, completar, reabrir y eliminar tareas; eliminar solicita confirmación.
-- **Calendario:** muestra tareas por día y permite cambiar de mes o volver al día actual.
-- **Historial y progreso:** calcula las tareas completadas en los últimos siete días y otros indicadores a partir de las tareas locales.
+- **Calendario:** muestra tareas por día y permite cambiar de mes o volver al día actual. El botón de Google Calendar autoriza una cuenta y sincroniza las tareas con su calendario principal; los cambios se replican automáticamente mientras el permiso esté vigente. Tras recargar la página o vencer el permiso, vuelve a pulsar el botón para autorizar y sincronizar. Los cambios hechos directamente en Google Calendar no se importan a ProTasker.
+- **Historial y progreso:** calcula las tareas completadas en los últimos siete días y otros indicadores a partir de las tareas de Firestore.
 - **Modo enfoque:** presenta las tareas pendientes y permite actuar sobre la tarea seleccionada.
-- **Cerrar sesión:** regresa a la portada; no elimina las tareas guardadas localmente.
+- **Cerrar sesión:** regresa a la portada; no elimina las tareas guardadas en Firestore.
 
-## 8. Instalación y Ejecución
+## 8. Google Calendar
+
+Para activar la sincronización:
+
+1. En Google Cloud Console, habilita **Google Calendar API** en el mismo proyecto de Google usado por Firebase.
+2. Configura la pantalla de consentimiento OAuth y crea un cliente de tipo **Aplicación web**. Añade el dominio de ProTasker y `http://localhost` a los orígenes autorizados; para publicar el proyecto, autoriza también el dominio en Firebase Authentication.
+3. En `scripts/firebase-config.js`, reemplaza `YOUR_GOOGLE_OAUTH_CLIENT_ID` por el ID de cliente OAuth. Este ID es público y no es un secreto.
+4. Publica las reglas actualizadas de Firestore (`firebase deploy --only firestore:rules`).
+5. Inicia sesión, abre **Calendario** y pulsa **Conectar Google Calendar**. Autoriza el calendario principal de la cuenta que deseas usar.
+
+La integración crea, actualiza y elimina los eventos de ProTasker al sincronizar; un cambio de tarea se envía automáticamente mientras el permiso OAuth siga activo en esa pestaña. Después de recargar o de que venza el token, pulsa **Conectar Google Calendar** otra vez. La sincronización es de ProTasker hacia Google Calendar, no modifica tareas desde cambios hechos directamente en Google Calendar. El ID de cliente OAuth y Firebase deben tener los dominios locales y publicados autorizados.
+
+## 9. Instalación y Ejecución
 
 1. Clonar el repositorio o descargar los archivos del proyecto.
-2. Abrir `index.html` directamente en un navegador moderno, o servir la carpeta con una extensión como Live Server en Visual Studio Code.
-3. Seleccionar **Iniciar sesión** para acceder al panel de demostración, o **Comenzar gratis** para probar el registro.
-4. En el flujo de registro, ingresar el código de verificación `265378`.
-5. Crear tareas desde **Mis tareas** para probar el calendario, las urgencias, el progreso y el modo enfoque.
+2. Configurar Firebase en `scripts/firebase-config.js` y publicar las reglas de Firestore.
+3. Servir la carpeta mediante Firebase Hosting o un servidor local como Live Server; no abras `index.html` directamente, ya que Firebase Authentication y OAuth necesitan un origen web autorizado.
+4. Iniciar sesión o crear una cuenta. Activa los proveedores de correo/contraseña y Google en Firebase Authentication si aún no están habilitados.
+5. Crear tareas desde **Mis tareas** y, si se desea, configurar Google Calendar siguiendo la sección anterior.
 
-No se requiere `npm install`, configuración de base de datos ni credenciales. Los datos creados son de demostración y se almacenan únicamente en el navegador actual.
+No se requiere `npm install`. Firebase y Google Cloud deben estar configurados para habilitar la autenticación, el guardado de tareas y la sincronización.

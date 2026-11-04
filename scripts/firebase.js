@@ -75,6 +75,16 @@
     return database.collection("users").doc(uid).collection("tasks");
   }
 
+  function calendarEventsCollection(uid) {
+    ensureReady();
+    return database.collection("users").doc(uid).collection("calendarEvents");
+  }
+
+  function calendarSettingsDocument(uid) {
+    ensureReady();
+    return database.collection("users").doc(uid).collection("calendarSettings").doc("googleCalendar");
+  }
+
   window.ProTasker = window.ProTasker || {};
   window.ProTasker.firebase = {
     createAccount(email, password, name) {
@@ -120,6 +130,26 @@
     },
     deleteTask(uid, taskId) {
       return tasksCollection(uid).doc(taskId).delete();
+    },
+    listCalendarEvents(uid) {
+      return calendarEventsCollection(uid).get()
+        .then((snapshot) => snapshot.docs.map((document) => ({
+          taskId: document.id,
+          ...document.data()
+        })));
+    },
+    saveCalendarEvent(uid, taskId, eventId) {
+      return calendarEventsCollection(uid).doc(taskId).set({ eventId });
+    },
+    deleteCalendarEvent(uid, taskId) {
+      return calendarEventsCollection(uid).doc(taskId).delete();
+    },
+    getCalendarAccount(uid) {
+      return calendarSettingsDocument(uid).get()
+        .then((document) => document.exists ? document.data().email : null);
+    },
+    saveCalendarAccount(uid, email) {
+      return calendarSettingsDocument(uid).set({ email });
     },
     errorMessage
   };

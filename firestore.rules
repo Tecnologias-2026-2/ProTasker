@@ -4,5 +4,11 @@ service cloud.firestore {
     match /users/{userId}/tasks/{taskId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    match /users/{userId}/calendarEvents/{taskId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /users/{userId}/calendarSettings/{settingId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }

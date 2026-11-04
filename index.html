@@ -292,13 +292,16 @@
               <div>
                 <h2 id="calendar-title" tabindex="-1">Calendario</h2>
                 <p>Consulta tus tareas por fecha.</p>
+                <p class="calendar-sync-intro" data-calendar-sync-intro></p>
               </div>
               <div class="calendar-controls">
+                <button class="button button-primary" type="button" data-calendar-sync disabled>Conectar Google Calendar</button>
                 <button class="task-action" type="button" aria-label="Mes anterior" data-calendar-prev>←</button>
                 <button class="task-action" type="button" data-calendar-today>Hoy</button>
                 <button class="task-action" type="button" aria-label="Mes siguiente" data-calendar-next>→</button>
               </div>
             </div>
+            <p class="calendar-sync-status" role="status" aria-live="polite" data-calendar-sync-status></p>
             <section class="calendar-panel" aria-label="Calendario mensual">
               <h3 class="calendar-month" data-calendar-month></h3>
               <div class="calendar-grid calendar-weekdays" aria-hidden="true">
@@ -415,10 +418,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
+  <script src="https://accounts.google.com/gsi/client" defer></script>
   <script src="scripts/firebase-config.js" defer></script>
   <script src="scripts/firebase.js" defer></script>
   <script src="scripts/features.js" defer></script>
   <script src="scripts/tasks.js" defer></script>
+  <script src="scripts/calendar-sync.js" defer></script>
   <script src="scripts/calendar.js" defer></script>
   <script src="scripts/progress.js" defer></script>
   <script src="scripts/dashboard.js" defer></script>

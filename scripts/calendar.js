@@ -9,6 +9,7 @@
     const eventsContainer = document.querySelector("[data-calendar-events]");
     const selectedDateHeading = document.querySelector("[data-calendar-selected-date]");
     const emptyState = document.querySelector("[data-calendar-empty]");
+    const calendarSync = window.ProTasker.initCalendarSync();
     const today = new Date();
     let month = new Date(today.getFullYear(), today.getMonth(), 1);
     let selectedDate = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
@@ -50,8 +51,11 @@
       emptyState.hidden = selectedTasks.length > 0;
     }
 
-    function render(tasksToRender = tasks) {
-      tasks = tasksToRender;
+    function render(tasksToRender, tasksLoaded = true) {
+      if (Array.isArray(tasksToRender)) {
+        tasks = tasksToRender;
+        calendarSync.setTasks(tasks, tasksLoaded);
+      }
       monthHeading.textContent = new Intl.DateTimeFormat("es", {
         month: "long",
         year: "numeric"
@@ -135,7 +139,12 @@
     });
 
     render();
-    return { render };
+    return {
+      render,
+      setUser(user) {
+        calendarSync.setUser(user);
+      }
+    };
   }
 
   window.ProTasker = window.ProTasker || {};

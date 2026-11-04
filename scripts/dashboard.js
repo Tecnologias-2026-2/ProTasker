@@ -22,9 +22,9 @@
       navButtons.find((button) => button.dataset.dashboardNav === "Enfoque").click();
     });
 
-    function updateTasks(tasks) {
+    function updateTasks(tasks, tasksLoaded) {
       updateStats(tasks);
-      calendar.render(tasks);
+      calendar.render(tasks, tasksLoaded);
       progress.render(tasks);
       renderFocus(tasks);
     }
@@ -221,11 +221,13 @@
           month: "long",
           year: "numeric"
         }).format(new Date());
+        calendar.setUser(user);
         taskManager.setUser(user.uid);
         reset();
         dashboardTitle.focus();
       },
       clearSession() {
+        calendar.setUser(null);
         taskManager.setUser(null);
         reset();
       },

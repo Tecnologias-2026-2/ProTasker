@@ -7,3 +7,5 @@ window.PROTASKER_FIREBASE_CONFIG = {
   appId: "1:843249034721:web:7637526d140c54fece1ea0",
   measurementId: "G-1TQZK85DGM"
 };
+
+window.PROTASKER_GOOGLE_CALENDAR_CLIENT_ID = "843249034721-59hlvhkl62ckb59rau4ud7pbeisnaht3.apps.googleusercontent.com";
