@@ -16,7 +16,7 @@ Desarrollar una aplicación web que ayude a estudiantes a organizar sus activida
 
 ProTasker está pensado para estudiantes que desean organizar tareas y entregas individuales. Se utiliza desde un navegador moderno en computadora, tablet o teléfono. El usuario puede crear tareas con descripción, fecha, hora y prioridad, y luego consultarlas en el panel principal, el calendario, el historial de progreso o el modo enfoque.
 
-La versión actual es un prototipo frontend. La autenticación y el registro son simulados, y las tareas se guardan en `localStorage` en el navegador y dispositivo actuales. No se envían datos a un servidor ni se sincronizan entre dispositivos.
+La aplicación usa Firebase Authentication para el registro y el inicio de sesión, y Cloud Firestore para conservar y sincronizar las tareas por usuario. Una API REST en Node.js y Express valida el token de Firebase y realiza las escrituras y operaciones del calendario mediante Firebase Admin SDK. La interfaz mantiene una suscripción de Firestore para reflejar los cambios de tareas en tiempo real.
 
 ## 3. Requerimientos del Sistema
 
@@ -46,7 +46,7 @@ El diagrama debe representar al estudiante como actor y sus acciones principales
 
 ### Diagrama de Secuencia
 
-El diagrama puede representar el flujo de creación de una tarea: el estudiante completa el formulario, la interfaz valida los campos, guarda la tarea en `localStorage` y actualiza las listas, el calendario y los indicadores del panel. Este diagrama aún debe agregarse como entregable.
+El diagrama puede representar el flujo de creación de una tarea: el estudiante completa el formulario, la interfaz envía la solicitud autenticada a la API, el servidor valida y guarda la tarea en Firestore, y la suscripción actualiza las listas, el calendario y los indicadores del panel. Este diagrama aún debe agregarse como entregable.
 
 ## 5. URL del Prototipo
 
@@ -56,9 +56,15 @@ El enlace puede requerir permisos de Figma. La aplicación actual también inclu
 
 ## 6. Diseño de Base de Datos
 
-La versión actual no utiliza una base de datos. Las tareas se serializan como JSON en `localStorage`, con una clave separada para cada correo normalizado. Los datos permanecen en el navegador actual; borrar los datos del sitio los elimina. No hay sincronización con un backend.
+La aplicación usa Firestore Standard en el proyecto `protaskerhtml`. Cada usuario tiene sus documentos en `users/{uid}`:
 
-Cada tarea guardada contiene:
+| Subcolección | Documento | Campos |
+|---|---|---|
+| `tasks` | ID de tarea | `id`, `title`, `description`, `date`, `time`, `priority`, `completed`, `completedAt` |
+| `calendarEvents` | ID de tarea | `eventId` de Google Calendar |
+| `calendarSettings` | `googleCalendar` | `email` de la cuenta vinculada |
+
+Cada tarea contiene estos campos:
 
 | Campo | Descripción |
 |---|---|
@@ -71,7 +77,7 @@ Cada tarea guardada contiene:
 | `completed` | Estado actual de completado. |
 | `completedAt` | Fecha y hora de finalización o `null` si la tarea está pendiente. |
 
-No hay tablas SQL ni imagen de un modelo de base de datos en el repositorio. El estado actual conserva el estado de cada tarea, pero no registra un historial inmutable de todos sus cambios.
+Los documentos pertenecen al UID autenticado. La API toma el UID del token verificado, no del cuerpo de la solicitud, y no incluye credenciales de administrador en el navegador.
 
 ## 7. Documentación del Sistema
 
@@ -81,11 +87,20 @@ No hay tablas SQL ni imagen de un modelo de base de datos en el repositorio. El 
 ProTasker/
 ├── index.html
 ├── README.md
+├── backend/
+│   ├── controllers/
+│   ├── database/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   └── utils/
+├── render.yaml
 ├── assets/
 ├── css/
 │   └── styles.css
 ├── scripts/
 │   ├── app.js
+│   ├── api-config.js
 │   ├── calendar.js
 │   ├── dashboard.js
 │   ├── features.js
@@ -106,7 +121,10 @@ ProTasker/
 - `assets/`: recursos estáticos; actualmente no contiene recursos adicionales.
 - `scripts/app.js`: flujo entre portada, inicio de sesión, registro, verificación y panel.
 - `scripts/features.js`: interacción de las tarjetas de funciones de la portada.
-- `scripts/tasks.js`: formulario, tarjetas, acciones y persistencia local de tareas.
+- `scripts/tasks.js`: formulario, tarjetas y acciones de tareas.
+- `scripts/firebase.js`: autenticación, suscripción de tareas en tiempo real y cliente autenticado de la API.
+- `scripts/api-config.js`: URL pública de la API de Render.
+- `backend/`: API Express con rutas, controladores, modelos, validación y conexión a Firebase Admin SDK.
 - `scripts/dashboard.js`: navegación del panel, métricas, acciones rápidas y modo enfoque.
 - `scripts/calendar.js`: calendario mensual y consulta de tareas por fecha.
 - `scripts/progress.js`: indicadores semanales y gráfica de actividad.
@@ -117,22 +135,51 @@ Los archivos JavaScript se cargan como scripts clásicos con `defer`, en el orde
 ### Funcionamiento de las Vistas
 
 - **Portada:** presenta el producto y permite expandir tarjetas de funciones.
-- **Inicio de sesión:** cualquier correo y contraseña que cumplan la validación HTML abre el panel; no se autentica una cuenta real. El nombre mostrado se obtiene de la parte del correo anterior a `@`.
-- **Registro:** solicita nombre, correo y contraseña, y lleva a la pantalla de verificación de demostración.
-- **Verificación:** el código `265378` abre el panel. Un código incorrecto muestra un mensaje; reenviar solo vuelve a mostrar el código en pantalla.
+- **Inicio de sesión y registro:** Firebase Authentication gestiona las cuentas y la sesión.
 - **Panel de inicio:** muestra la fecha, racha, tareas completadas hoy, pendientes, accesos rápidos y listas de tareas.
 - **Mis tareas:** permite crear, editar, completar, reabrir y eliminar tareas; eliminar solicita confirmación.
 - **Calendario:** muestra tareas por día y permite cambiar de mes o volver al día actual.
-- **Historial y progreso:** calcula las tareas completadas en los últimos siete días y otros indicadores a partir de las tareas locales.
+- **Historial y progreso:** calcula las tareas completadas en los últimos siete días y otros indicadores a partir de las tareas de Firestore.
 - **Modo enfoque:** presenta las tareas pendientes y permite actuar sobre la tarea seleccionada.
-- **Cerrar sesión:** regresa a la portada; no elimina las tareas guardadas localmente.
+- **Cerrar sesión:** Firebase Authentication cierra la sesión; las tareas permanecen en Firestore.
 
-## 8. Instalación y Ejecución
+## 8. API y despliegue en Render
+
+La API expone estos endpoints bajo `/api`; todos requieren `Authorization: Bearer <Firebase ID token>`:
+
+| Método | Ruta | Operación |
+|---|---|---|
+| `GET` | `/api/tasks` | Listar las tareas del usuario autenticado |
+| `PUT` | `/api/tasks/:taskId` | Crear o actualizar una tarea |
+| `DELETE` | `/api/tasks/:taskId` | Eliminar una tarea |
+| `GET` | `/api/calendar-events` | Listar vínculos de eventos de Google Calendar |
+| `PUT` | `/api/calendar-events/:taskId` | Guardar el ID del evento vinculado |
+| `DELETE` | `/api/calendar-events/:taskId` | Eliminar el vínculo de un evento |
+| `GET`, `PUT` | `/api/calendar-events/account` | Consultar o guardar el correo de Google Calendar |
+| `GET` | `/health` | Comprobación de disponibilidad para Render |
+
+### Desplegar la API
+
+1. En Render, crea un **Blueprint** desde este repositorio para que lea `render.yaml`; el servicio `protasker-api` usa `backend/` como directorio raíz.
+2. Crea una cuenta de servicio de Google Cloud para Firebase Admin SDK con acceso a Firestore (rol `Cloud Datastore User`) en el proyecto `protaskerhtml`.
+3. En las variables de entorno del servicio Render, configura `FIREBASE_CLIENT_EMAIL` y `FIREBASE_PRIVATE_KEY` con los datos de esa cuenta. Conserva la clave privada solo en Render o en un `.env` local ignorado por Git; nunca la publiques ni la agregues al repositorio.
+4. `FIREBASE_PROJECT_ID` y `FRONTEND_ORIGINS` ya tienen valores iniciales en `render.yaml`. Ajusta `FRONTEND_ORIGINS` si publicas el frontend en otro dominio.
+5. Comprueba que `https://protasker-api.onrender.com/health` responda `{"status":"ok"}`. Si cambias el nombre del servicio, actualiza `scripts/api-config.js` con su URL pública más `/api`.
+6. Publica las reglas actualizadas de Firestore con `firebase deploy --only firestore:rules --project protaskerhtml`. El `--dry-run` usado durante el desarrollo solo verifica la compilación; no publica cambios.
+
+### Ejecutar localmente
+
+1. Instala Node.js 20 o superior.
+2. Desde `backend/`, ejecuta `npm install` y copia `.env.example` a `.env`.
+3. Completa las variables de Firebase Admin en `.env`; nunca uses una clave privada real en el frontend.
+4. Ejecuta `npm start` desde `backend/`. Para desarrollo local, cambia temporalmente `scripts/api-config.js` a `http://localhost:3000/api` y sirve el frontend en `http://localhost:5500` con Live Server.
+5. Ejecuta `npm test` desde `backend/` para validar las reglas de entrada de la API.
+
+## 9. Instalación del frontend
 
 1. Clonar el repositorio o descargar los archivos del proyecto.
-2. Abrir `index.html` directamente en un navegador moderno, o servir la carpeta con una extensión como Live Server en Visual Studio Code.
-3. Seleccionar **Iniciar sesión** para acceder al panel de demostración, o **Comenzar gratis** para probar el registro.
-4. En el flujo de registro, ingresar el código de verificación `265378`.
-5. Crear tareas desde **Mis tareas** para probar el calendario, las urgencias, el progreso y el modo enfoque.
+2. Sirve la carpeta con una extensión como Live Server en Visual Studio Code; la autenticación y las solicitudes API necesitan un origen web.
+3. Inicia sesión o crea una cuenta de Firebase Authentication.
+4. Crea tareas desde **Mis tareas** para probar el calendario, las urgencias, el progreso y el modo enfoque.
 
-No se requiere `npm install`, configuración de base de datos ni credenciales. Los datos creados son de demostración y se almacenan únicamente en el navegador actual.
+El frontend no requiere compilación. Para acceder a datos reales, la API de Render y Firebase deben estar configurados.

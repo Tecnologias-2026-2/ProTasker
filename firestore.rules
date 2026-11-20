@@ -1,14 +1,143 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Assumed data model:
+    // users/{uid}/tasks/{taskId}: id, title, description, date, time,
+    // priority, completed, completedAt.
+    // users/{uid}/calendarEvents/{taskId}: eventId.
+    // users/{uid}/calendarSettings/googleCalendar: email.
+    // API writes use Firebase Admin SDK; client reads use the signed-in UID.
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function uidUnchanged(data) {
+      return !('uid' in data) || data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == resource.data.uid;
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function isValidString(data, field, minLength, maxLength) {
+      return data[field] is string &&
+        data[field].size() >= minLength &&
+        data[field].size() <= maxLength;
+    }
+
+    function isValidTaskId(taskId) {
+      return taskId is string &&
+        taskId.size() >= 1 &&
+        taskId.size() <= 128 &&
+        taskId.matches('^[A-Za-z0-9_-]+$');
+    }
+
+    function isValidDate(data, value) {
+      return isValidString(data, 'date', 10, 10) &&
+        value.matches(
+          '^([0-9]{4}-(01|03|05|07|08|10|12)-(0[1-9]|[12][0-9]|3[01])|' +
+          '[0-9]{4}-(04|06|09|11)-(0[1-9]|[12][0-9]|30)|' +
+          '[0-9]{4}-02-(0[1-9]|1[0-9]|2[0-8])|' +
+          '([02468][048]|[13579][26])00-02-29|' +
+          '[0-9]{2}(0[48]|[2468][048]|[13579][26])-02-29)$'
+        );
+    }
+
+    function isValidTask(data, taskId) {
+      return data is map &&
+        isValidTaskId(taskId) &&
+        hasRequiredFields(data, [
+          'id', 'title', 'description', 'date', 'time',
+          'priority', 'completed', 'completedAt'
+        ]) &&
+        hasOnlyAllowedFields(data, [
+          'id', 'title', 'description', 'date', 'time',
+          'priority', 'completed', 'completedAt'
+        ]) &&
+        data.id == taskId &&
+        isValidString(data, 'title', 1, 160) &&
+        isValidString(data, 'description', 0, 2000) &&
+        isValidDate(data, data.date) &&
+        isValidString(data, 'time', 5, 5) &&
+        data.time.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') &&
+        data.priority in ['low', 'medium', 'high'] &&
+        data.completed is bool &&
+        (data.completedAt == null ||
+          (isValidString(data, 'completedAt', 24, 24) &&
+            data.completedAt.matches(
+              '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$'
+            )));
+    }
+
+    function isValidCalendarEvent(data, taskId) {
+      return data is map &&
+        isValidTaskId(taskId) &&
+        hasRequiredFields(data, ['eventId']) &&
+        hasOnlyAllowedFields(data, ['eventId']) &&
+        isValidString(data, 'eventId', 1, 1024);
+    }
+
+    function isValidCalendarSettings(data) {
+      return data is map &&
+        hasRequiredFields(data, ['email']) &&
+        hasOnlyAllowedFields(data, ['email']) &&
+        isValidString(data, 'email', 3, 254) &&
+        data.email.matches(
+          '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'
+        );
+    }
+
     match /users/{userId}/tasks/{taskId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+        uidUnchanged(request.resource.data) &&
+        isValidTask(request.resource.data, taskId);
+      allow update: if isOwner(userId) &&
+        uidNotModified() &&
+        isValidTask(request.resource.data, taskId);
+      allow delete: if isOwner(userId);
     }
+
     match /users/{userId}/calendarEvents/{taskId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+        uidUnchanged(request.resource.data) &&
+        isValidCalendarEvent(request.resource.data, taskId);
+      allow update: if isOwner(userId) &&
+        uidNotModified() &&
+        isValidCalendarEvent(request.resource.data, taskId);
+      allow delete: if isOwner(userId);
     }
+
     match /users/{userId}/calendarSettings/{settingId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+        settingId == 'googleCalendar' &&
+        uidUnchanged(request.resource.data) &&
+        isValidCalendarSettings(request.resource.data);
+      allow update: if isOwner(userId) &&
+        settingId == 'googleCalendar' &&
+        uidNotModified() &&
+        isValidCalendarSettings(request.resource.data);
+      allow delete: if isOwner(userId) && settingId == 'googleCalendar';
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

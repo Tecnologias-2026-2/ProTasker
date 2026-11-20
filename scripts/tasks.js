@@ -54,7 +54,7 @@
         render();
         return true;
       } catch (error) {
-        showFeedback(`No se pudo guardar la tarea en Firebase. ${window.ProTasker.firebase.errorMessage(error)}`);
+        showFeedback(`No se pudo guardar la tarea mediante la API. ${window.ProTasker.firebase.errorMessage(error)}`);
         return false;
       }
     }
@@ -67,7 +67,7 @@
         render();
         return true;
       } catch (error) {
-        showFeedback(`No se pudo eliminar la tarea en Firebase. ${window.ProTasker.firebase.errorMessage(error)}`);
+        showFeedback(`No se pudo eliminar la tarea mediante la API. ${window.ProTasker.firebase.errorMessage(error)}`);
         return false;
       }
     }

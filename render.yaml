@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: protasker-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: FIREBASE_PROJECT_ID
+        value: protaskerhtml
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FRONTEND_ORIGINS
+        value: https://protaskerhtml.web.app,https://protaskerhtml.firebaseapp.com,http://localhost:5500,http://127.0.0.1:5500

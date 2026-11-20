@@ -12,6 +12,8 @@
       "**/.*",
       "**/node_modules/**",
       "README.md",
+      "backend/**",
+      "render.yaml",
       "firestore.rules",
       "firestore.indexes.json",
       "skills/**",

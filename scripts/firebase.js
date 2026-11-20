@@ -39,7 +39,15 @@
     if (error?.code === "app/not-configured") {
       return error.message;
     }
+    if (error?.code === "auth/not-authenticated" ||
+      (typeof error?.code === "string" &&
+        (error.code.startsWith("api/") || error.code.startsWith("task/") ||
+          error.code.startsWith("calendar/")))) {
+      return error.message;
+    }
     const messages = {
+      "api/not-configured": "Configura PROTASKER_API_BASE_URL en scripts/api-config.js con la URL de la API desplegada en Render.",
+      "auth/not-authenticated": "Inicia sesión para continuar.",
       "auth/email-already-in-use": "Ya existe una cuenta con ese correo.",
       "auth/invalid-email": "El correo electrónico no es válido.",
       "auth/invalid-credential": "El correo o la contraseña son incorrectos.",
@@ -67,7 +75,7 @@
       "firestore/unavailable": "Firestore no está disponible. Revisa tu conexión e inténtalo de nuevo."
     };
     const code = typeof error?.code === "string" ? ` (código: ${error.code})` : "";
-    return `${messages[error?.code] || "Ocurrió un error al comunicarse con Firebase. Revisa la configuración del proyecto y la consola del navegador."}${code}`;
+    return `${messages[error?.code] || "Ocurrió un error al comunicarse con Firebase o la API. Revisa la conexión y la consola del navegador."}${code}`;
   }
 
   function tasksCollection(uid) {
@@ -75,14 +83,40 @@
     return database.collection("users").doc(uid).collection("tasks");
   }
 
-  function calendarEventsCollection(uid) {
+  async function requestApi(uid, path, method = "GET", body) {
     ensureReady();
-    return database.collection("users").doc(uid).collection("calendarEvents");
-  }
-
-  function calendarSettingsDocument(uid) {
-    ensureReady();
-    return database.collection("users").doc(uid).collection("calendarSettings").doc("googleCalendar");
+    const currentUser = auth.currentUser;
+    if (!currentUser || currentUser.uid !== uid) {
+      const error = new Error("Inicia sesión de nuevo para continuar.");
+      error.code = "auth/not-authenticated";
+      throw error;
+    }
+    const baseUrl = window.PROTASKER_API_BASE_URL;
+    if (typeof baseUrl !== "string" || !baseUrl.trim()) {
+      const error = new Error(errorMessage({ code: "api/not-configured" }));
+      error.code = "api/not-configured";
+      throw error;
+    }
+    const token = await currentUser.getIdToken();
+    const response = await fetch(`${baseUrl.replace(/\/+$/, "")}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(body ? { "Content-Type": "application/json" } : {})
+      },
+      ...(body ? { body: JSON.stringify(body) } : {})
+    });
+    if (response.status === 204) {
+      return null;
+    }
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      const error = new Error(payload?.error?.message || `La API respondió con el código ${response.status}.`);
+      error.code = payload?.error?.code || "api/request-failed";
+      error.status = response.status;
+      throw error;
+    }
+    return payload;
   }
 
   window.ProTasker = window.ProTasker || {};
@@ -126,30 +160,26 @@
       }, onError);
     },
     saveTask(uid, task) {
-      return tasksCollection(uid).doc(task.id).set(task);
+      return requestApi(uid, `/tasks/${encodeURIComponent(task.id)}`, "PUT", task);
     },
     deleteTask(uid, taskId) {
-      return tasksCollection(uid).doc(taskId).delete();
+      return requestApi(uid, `/tasks/${encodeURIComponent(taskId)}`, "DELETE");
     },
     listCalendarEvents(uid) {
-      return calendarEventsCollection(uid).get()
-        .then((snapshot) => snapshot.docs.map((document) => ({
-          taskId: document.id,
-          ...document.data()
-        })));
+      return requestApi(uid, "/calendar-events");
     },
     saveCalendarEvent(uid, taskId, eventId) {
-      return calendarEventsCollection(uid).doc(taskId).set({ eventId });
+      return requestApi(uid, `/calendar-events/${encodeURIComponent(taskId)}`, "PUT", { eventId });
     },
     deleteCalendarEvent(uid, taskId) {
-      return calendarEventsCollection(uid).doc(taskId).delete();
+      return requestApi(uid, `/calendar-events/${encodeURIComponent(taskId)}`, "DELETE");
     },
     getCalendarAccount(uid) {
-      return calendarSettingsDocument(uid).get()
-        .then((document) => document.exists ? document.data().email : null);
+      return requestApi(uid, "/calendar-events/account")
+        .then((account) => account.email);
     },
     saveCalendarAccount(uid, email) {
-      return calendarSettingsDocument(uid).set({ email });
+      return requestApi(uid, "/calendar-events/account", "PUT", { email });
     },
     errorMessage
   };
