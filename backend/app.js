@@ -17,7 +17,7 @@ function allowedOrigins() {
     .map((origin) => origin.trim())
     .filter(Boolean);
 
-  return new Set(configuredOrigins?.length ? configuredOrigins : defaultOrigins);
+  return new Set([...defaultOrigins, ...(configuredOrigins || [])]);
 }
 
 export function createApp() {

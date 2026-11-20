@@ -4,7 +4,14 @@ import { once } from "node:events";
 import { createApp } from "../app.js";
 
 test("health endpoint works and private routes reject missing tokens", async (context) => {
+  const previousOrigins = process.env.FRONTEND_ORIGINS;
+  process.env.FRONTEND_ORIGINS = "https://custom.example";
   const server = createApp().listen(0, "127.0.0.1");
+  if (previousOrigins === undefined) {
+    delete process.env.FRONTEND_ORIGINS;
+  } else {
+    process.env.FRONTEND_ORIGINS = previousOrigins;
+  }
   await once(server, "listening");
   context.after(() => new Promise((resolve, reject) => {
     server.close((error) => error ? reject(error) : resolve());
@@ -36,5 +43,14 @@ test("health endpoint works and private routes reject missing tokens", async (co
   assert.equal(
     githubPagesResponse.headers.get("access-control-allow-origin"),
     "https://tecnologias-2026-2.github.io"
+  );
+
+  const customOriginResponse = await fetch(`${baseUrl}/api/tasks`, {
+    headers: { Origin: "https://custom.example" }
+  });
+  assert.equal(customOriginResponse.status, 401);
+  assert.equal(
+    customOriginResponse.headers.get("access-control-allow-origin"),
+    "https://custom.example"
   );
 });
