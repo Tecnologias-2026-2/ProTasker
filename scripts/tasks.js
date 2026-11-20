@@ -18,6 +18,7 @@
     const dialog = document.querySelector("[data-task-dialog]");
     const form = document.querySelector("[data-task-form]");
     const dialogTitle = document.querySelector("[data-task-dialog-title]");
+    const formMessage = document.querySelector("[data-task-form-message]");
     const taskLists = [
       document.querySelector("[data-today-tasks]"),
       document.querySelector("[data-upcoming-tasks]"),
@@ -41,6 +42,11 @@
       feedback.hidden = !message;
     }
 
+    function showFormMessage(message) {
+      formMessage.textContent = message;
+      formMessage.hidden = !message;
+    }
+
     async function saveTask(task) {
       try {
         await window.ProTasker.firebase.saveTask(userId, task);
@@ -54,7 +60,7 @@
         render();
         return true;
       } catch (error) {
-        showFeedback(`No se pudo guardar la tarea mediante la API. ${window.ProTasker.firebase.errorMessage(error)}`);
+        showFormMessage(`No se pudo guardar la tarea mediante la API. ${window.ProTasker.firebase.errorMessage(error)}`);
         return false;
       }
     }
@@ -197,6 +203,7 @@
     function openForm(task = null, opener = document.activeElement) {
       returnFocus = opener;
       form.reset();
+      showFormMessage("");
       form.elements.title.setCustomValidity("");
       document.querySelector("[data-task-id]").value = task ? task.id : "";
       dialogTitle.textContent = task ? "Editar tarea" : "Nueva tarea";
@@ -265,6 +272,7 @@
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      showFormMessage("");
       if (!form.reportValidity()) {
         return;
       }
