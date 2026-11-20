@@ -163,7 +163,7 @@ La API expone estos endpoints bajo `/api`; todos requieren `Authorization: Beare
 1. En Render, crea un **Blueprint** desde este repositorio para que lea `render.yaml`; el servicio `protasker-api` usa `backend/` como directorio raíz.
 2. Crea una cuenta de servicio de Google Cloud para Firebase Admin SDK con acceso a Firestore (rol `Cloud Datastore User`) en el proyecto `protaskerhtml`.
 3. En las variables de entorno del servicio Render, configura `FIREBASE_CLIENT_EMAIL` y `FIREBASE_PRIVATE_KEY` con los datos de esa cuenta. Conserva la clave privada solo en Render o en un `.env` local ignorado por Git; nunca la publiques ni la agregues al repositorio.
-4. `FIREBASE_PROJECT_ID` y `FRONTEND_ORIGINS` ya tienen valores iniciales en `render.yaml`. Ajusta `FRONTEND_ORIGINS` si publicas el frontend en otro dominio.
+4. `FIREBASE_PROJECT_ID` y `FRONTEND_ORIGINS` ya tienen valores iniciales en `render.yaml`, incluidos Firebase Hosting y GitHub Pages (`https://tecnologias-2026-2.github.io`). En `FRONTEND_ORIGINS` se configura el origen solamente, sin la ruta `/ProTasker/`. Ajusta la variable si publicas el frontend en otro dominio.
 5. Comprueba que `https://protasker-api.onrender.com/health` responda `{"status":"ok"}`. Si cambias el nombre del servicio, actualiza `scripts/api-config.js` con su URL pública más `/api`.
 6. Publica las reglas actualizadas de Firestore con `firebase deploy --only firestore:rules --project protaskerhtml`. El `--dry-run` usado durante el desarrollo solo verifica la compilación; no publica cambios.
 

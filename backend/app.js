@@ -7,7 +7,8 @@ const defaultOrigins = [
   "http://localhost:5500",
   "http://127.0.0.1:5500",
   "https://protaskerhtml.web.app",
-  "https://protaskerhtml.firebaseapp.com"
+  "https://protaskerhtml.firebaseapp.com",
+  "https://tecnologias-2026-2.github.io"
 ];
 
 function allowedOrigins() {

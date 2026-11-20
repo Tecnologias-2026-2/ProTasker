@@ -28,4 +28,13 @@ test("health endpoint works and private routes reject missing tokens", async (co
     headers: { Origin: "https://untrusted.example" }
   });
   assert.equal(rejectedOriginResponse.status, 403);
+
+  const githubPagesResponse = await fetch(`${baseUrl}/api/tasks`, {
+    headers: { Origin: "https://tecnologias-2026-2.github.io" }
+  });
+  assert.equal(githubPagesResponse.status, 401);
+  assert.equal(
+    githubPagesResponse.headers.get("access-control-allow-origin"),
+    "https://tecnologias-2026-2.github.io"
+  );
 });
